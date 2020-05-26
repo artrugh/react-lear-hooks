@@ -1,13 +1,18 @@
-import React, { useContext } from 'react';
+import React from 'react';
+
+
 
 import Ingredients from './components/Ingredients/Ingredients';
 import Auth from './components/Auth';
 
-import { AuthContext } from './context/auth-context'
+// import { AuthContext } from './context/auth-context'
+import { useStore } from './hooksStore/store'
 
 const App = () => {
-  const authContext = useContext(AuthContext);
-  return authContext.isAuth ? <Ingredients /> : <Auth />
+  // shouldListen true
+  const state = useStore()[0]
+
+  return state.isAuth ? <Ingredients /> : <Auth />
 
 };
 

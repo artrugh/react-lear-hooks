@@ -1,39 +1,39 @@
-import React, { useEffect, useCallback, useReducer, useMemo } from 'react';
+import React, {
+  useEffect,
+  useCallback,
+  useMemo
+} from 'react';
 
-import IngredientForm from './IngredientForm';
+import IngredientForm from './IngredientForm'
 import IngredientList from './IngredientList'
 import ErrorModal from './../UI/ErrorModal'
-import Search from './Search';
-import useHttp from './../../hooks/http'
+import Search from './Search'
 
-const ingredientsReducer = (ingredients, action) => {
-  switch (action.type) {
-    case 'SET':
-      return action.ingredients
-    case 'ADD':
-      return [...ingredients, action.ingredients]
-    case 'REMOVE':
-      return ingredients.filter(ing => ing.id !== action.id)
-    default: throw new Error('Should not be there')
-  }
-}
+import useHttp from './../../hooks/http'
+import { useStore } from './../../hooksStore/store'
+
 
 const Ingredients = () => {
 
-  const [ingredients, dispatch] = useReducer(ingredientsReducer, [])
   const [httpState, dispatchHttp, clear] = useHttp();
+
+  const dispatchIng = useStore(false)[1]
+  const state = useStore()[0]
 
   console.log('RENDERING INGREDIENTS BEFORE');
   useEffect(() => {
     console.log('RENDERING INGREDIENTS');
   });
 
-
   useEffect(() => {
     if (!httpState.error && !httpState.loading && httpState.identifer === 'REMOVE') {
-      dispatch({ type: 'REMOVE', id: httpState.extra })
+
+      dispatchIng('REMOVE', httpState.extra)
+
     } else if (!httpState.error && !httpState.loading && httpState.identifer === 'ADD') {
-      dispatch({ type: 'ADD', ingredients: { id: httpState.data.name, ...httpState.extra } })
+
+      dispatchIng('ADD',
+        { id: httpState.data.name, ...httpState.extra })
     }
   }, [httpState.error, httpState.loading, httpState.data, httpState.identifer, httpState.extra]);
 
@@ -55,15 +55,15 @@ const Ingredients = () => {
     );
   }, [dispatchHttp])
 
-  const filteredIngredientsHandler = useCallback(filteredIng => { 
-    dispatch({ type: 'SET', ingredients: filteredIng })
+  const filteredIngredientsHandler = useCallback(filteredIng => {
+    dispatchIng('SET', filteredIng)
   }, [])
 
   const ingredientList = useMemo(() => (
     <IngredientList
-      ingredients={ingredients}
+      ingredients={state.ingredients}
       removeIngredientHandler={removeIngredientHandler} />
-  ), [ingredients, removeIngredientHandler])
+  ), [state.ingredients, removeIngredientHandler])
 
   return (
     <div className="App">
