@@ -1,1 +1,1 @@
-customize hookstore (reducer)
+customize hook and customize storehook
