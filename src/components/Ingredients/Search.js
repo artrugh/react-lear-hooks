@@ -29,7 +29,7 @@ const Search = memo(({dispatchHttp, clean}) => {
           ? ''
           : `?orderBy="title"&equalTo="${enteredFilter}"`
       dispatchHttp(
-        'https://react-hooks-4782a.firebaseio.com/ingredients.jon' + query,
+        'https://react-hooks-4782a.firebaseio.com/ingredients.json' + query,
         'GET',
         null,
         null,
