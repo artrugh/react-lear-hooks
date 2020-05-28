@@ -1,5 +1,14 @@
-
 import { initStore } from './store';
+
+const initialState = {
+    loading: false,
+    error: null,
+    response: null,
+    identifer: null,
+    ingredient: null,
+    isAuth: false,
+    ingredients: []
+}
 
 const configStore = () => {
 
@@ -7,11 +16,45 @@ const configStore = () => {
 
         LOGIN: state => ({ ...state, isAuth: true }),
 
-        SET: (state, ingredients) => ({ ...state, ingredients: ingredients }),
+        // fetching data,
+
+        SEND: (state, identifer) => ({
+            ...state,
+            loading: true,
+            error: null,
+            response: null,
+            identifer: identifer
+        }),
+
+        RESPONSE: (state, payload) => ({
+            ...state,
+            loading: false,
+            response: payload.response,
+            ingredient: payload.ingredient
+        }),
+
+        ERROR: state => ({
+            ...state,
+            loading: false,
+            error: 'something went wrong'
+        }),
+
+        CLEAN: (state) => ({
+            ...initialState,
+            isAuth: state.isAuth
+        }),
+
+        // managing ingredient
+
+        SET: (state, ingredients) => ({
+            ...state,
+            ingredients: ingredients,
+        }),
 
         ADD: (state, ingredient) => ({
             ...state,
-            ingredients: [...state.ingredients, ingredient]
+            ingredients: [...state.ingredients, ingredient],
+
         }),
 
         REMOVE: (state, id) => {
@@ -23,10 +66,7 @@ const configStore = () => {
         }
     }
 
-    initStore(actions, {
-        isAuth: true,
-        ingredients: []
-    })
+    initStore(actions, initialState)
 }
 
 export default configStore;

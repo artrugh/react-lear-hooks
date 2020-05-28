@@ -1,5 +1,4 @@
 import React, {
-  useEffect,
   useCallback,
   useMemo
 } from 'react';
@@ -15,27 +14,14 @@ import { useStore } from './../../hooksStore/store'
 
 const Ingredients = () => {
 
-  const [httpState, dispatchHttp, clear] = useHttp();
+  const [dispatchHttp, clean] = useHttp();
 
-  const dispatchIng = useStore(false)[1]
   const state = useStore()[0]
 
-  console.log('RENDERING INGREDIENTS BEFORE');
-  useEffect(() => {
-    console.log('RENDERING INGREDIENTS');
-  });
-
-  useEffect(() => {
-    if (!httpState.error && !httpState.loading && httpState.identifer === 'REMOVE') {
-
-      dispatchIng('REMOVE', httpState.extra)
-
-    } else if (!httpState.error && !httpState.loading && httpState.identifer === 'ADD') {
-
-      dispatchIng('ADD',
-        { id: httpState.data.name, ...httpState.extra })
-    }
-  }, [httpState.error, httpState.loading, httpState.data, httpState.identifer, httpState.extra]);
+  // console.log('RENDERING INGREDIENTS BEFORE');
+  // useEffect(() => {
+  //   console.log('RENDERING INGREDIENTS');
+  // });
 
   const addIngredientHandler = useCallback(ingredient => {
     dispatchHttp(`https://react-hooks-4782a.firebaseio.com/ingredients.json`,
@@ -55,9 +41,6 @@ const Ingredients = () => {
     );
   }, [dispatchHttp])
 
-  const filteredIngredientsHandler = useCallback(filteredIng => {
-    dispatchIng('SET', filteredIng)
-  }, [])
 
   const ingredientList = useMemo(() => (
     <IngredientList
@@ -68,15 +51,17 @@ const Ingredients = () => {
   return (
     <div className="App">
 
-      {httpState.error && (
-        <ErrorModal onClose={clear}>{httpState.error}</ErrorModal>)}
+      {state.error && (
+        <ErrorModal onClose={clean}>{state.error}</ErrorModal>)}
       <IngredientForm
-        loading={httpState.loading}
+        loading={state.loading}
         addIngredientHandler={addIngredientHandler} />
 
       <section>
         <Search
-          filteredIngredientsHandler={filteredIngredientsHandler} />
+          dispatchHttp={dispatchHttp}
+          clean={clean}
+        />
         {ingredientList}
       </section>
     </div>

@@ -1,38 +1,21 @@
-import { useReducer, useCallback } from 'react'
+import {
+    useCallback,
+    useEffect
+} from 'react';
 
-const initialState = {
-    loading: false,
-    error: null,
-    data: null,
-    extra: null,
-    identifer: null
-}
-
-const httpReducer = (curHttpState, action) => {
-    switch (action.type) {
-        case 'SEND':
-            return { loading: true, error: null, data: null, extra: null, identifer: action.identifer };
-        case 'RESPONSE':
-            return { ...curHttpState, loading: false, data: action.data, extra: action.extra };
-        case 'ERROR':
-            return { loading: false, error: 'something went wrong' };
-        case 'CLEAR':
-            return { initialState };
-        default:
-            throw new Error('Should not be reached!');
-    }
-};
-
+import { useStore } from './../hooksStore/store'
 
 const useHttp = () => {
 
-    const [httpState, dispatchHttp] = useReducer(httpReducer, initialState);
+    const dispatch = useStore(false)[1]
+    const state = useStore()[0]
 
-    const clear = useCallback(() => dispatchHttp({ type: 'CLEAR'}), [])
+    const clean = useCallback(() => dispatch('CLEAN'), [dispatch])
 
-    const sendRequest = useCallback((url, method, body, extra, identifer) => {
-        dispatchHttp({ type: 'SEND', identifer: identifer });
-        
+    const sendRequest = useCallback((url, method, body, ingredient, identifer) => {
+
+        dispatch('SEND', identifer)
+
         fetch(url, {
             method: method,
             body: body,
@@ -42,15 +25,53 @@ const useHttp = () => {
                 return res.json()
             })
             .then(resData => {
-                dispatchHttp({ type: 'RESPONSE', data: resData, extra: extra })
+                dispatch('RESPONSE', { response: resData, ingredient: ingredient })
+
             })
             .catch(err => {
-                dispatchHttp({ type: 'ERROR' });
-
+                dispatch('ERROR')
             })
-    }, [])
 
-    return [httpState, sendRequest, clear]
+    }, [dispatch])
+
+    useEffect(() => {
+
+        if (!state.error && !state.loading && state.identifer === 'REMOVE') {
+
+            dispatch('REMOVE', state.ingredient)
+
+        } else if (!state.error && !state.loading && state.identifer === 'ADD') {
+
+            dispatch('ADD', {
+                id: state.response.name,
+                ...state.ingredient
+            })
+
+        } else if (!state.error && !state.loading && state.identifer === 'SET') {
+
+            const resData = state.response
+            const loadedIngredients = [];
+
+            for (const key in resData) {
+
+                loadedIngredients.push({
+                    id: key,
+                    title: resData[key].title,
+                    amount: resData[key].amount
+                })
+            }
+            dispatch('SET', loadedIngredients)
+        }
+
+    }, [
+        state.error,
+        state.loading,
+        state.response,
+        state.identifer,
+        state.ingredient,
+        dispatch]);
+
+    return [sendRequest, clean]
 
 };
 

@@ -1,12 +1,13 @@
-import React, {memo, useEffect} from 'react';
+import React, {memo} from 'react';
 
 import './IngredientList.css';
 
 const IngredientList = memo(props => {
-  console.log('RENDERING LIST BEFORE');
-  useEffect(() => {
-    console.log('RENDERING LIST');
-  });
+  
+  // console.log('RENDERING LIST BEFORE');
+  // useEffect(() => {
+  //   console.log('RENDERING LIST');
+  // });
   
   return (
     <section className="ingredient-list">
